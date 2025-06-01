@@ -6,8 +6,7 @@ from datetime import datetime
 
 SESSIONS_DIR = "./unnamed_record/sessions"
 LOGBOOK = "./unnamed_record/logbook.md"
-
-session_identity = "rusted_i_1300"
+IDENTITY_FILE = "./current_session_identity.txt"
 
 def find_latest_session():
     sessions = sorted([d for d in os.listdir(SESSIONS_DIR) if d.startswith("session_")], reverse=True)
@@ -16,13 +15,24 @@ def find_latest_session():
     sid = sessions[0]
     return sid, os.path.join(SESSIONS_DIR, sid)
 
+def read_identity():
+    if not os.path.exists(IDENTITY_FILE):
+        return None
+    with open(IDENTITY_FILE, "r") as f:
+        return f.read().strip()
+
 sid, path = find_latest_session()
-if path:
+identity = read_identity()
+
+if path and identity:
     notes = os.path.join(path, "notes.md")
     with open(notes, 'a') as f:
-        f.write(f"\n## Auto Identity\n{session_identity}\n")
+        f.write(f"\n## Auto Identity\n{identity}\n")
     with open(LOGBOOK, 'a') as f:
-        f.write(f"[{datetime.now().isoformat()}] → {session_identity} → {sid}\n")
-    print(f"✅ Session '{session_identity}' logged under: {sid}")
-else:
+        f.write(f"[{datetime.now().isoformat()}] → {identity} → {sid}\n")
+    print(f"✅ Session '{identity}' logged under: {sid}")
+elif not path:
     print("⛔ No active session found.")
+else:
+    print("⛔ No session identity generated.")
+

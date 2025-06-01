@@ -3,6 +3,9 @@
 
 from datetime import datetime
 import random
+import os
+
+IDENTITY_FILE = "./current_session_identity.txt"
 
 # These would ideally be pulled from your live tag and voice logs
 # but here we initialize with sample seed data
@@ -27,3 +30,7 @@ stamp = datetime.now().strftime("%H%M")
 
 session_identity = f"{prefix}_{trigger}_{stamp}"
 print(f"🧬 Generated Session Identity: {session_identity}")
+
+# Persist identity for use by other modules
+with open(IDENTITY_FILE, "w") as f:
+    f.write(session_identity)

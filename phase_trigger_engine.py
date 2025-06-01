@@ -49,6 +49,7 @@ def execute_commands(commands):
         print("🎛️ Launching DAW for Generator phase...")
         subprocess.Popen(["python3", "session_identity_generator.py"])
         subprocess.Popen(["python3", "session_identity_logger.py"])
+        subprocess.Popen(["python3", "session_identity_engine.py"])
         subprocess.Popen(["python3", "daw_launcher.py"])
         subprocess.Popen(["python3", "session_linker.py"])
         subprocess.Popen(["python3", "fragment_tagger.py"])
@@ -65,6 +66,7 @@ def execute_commands(commands):
         subprocess.Popen(["python3", "oracle_remix_session.py"])
         subprocess.Popen(["uvicorn", "remix_browser:app", "--host", "127.0.0.1", "--port", "7892", "--reload"])
         subprocess.Popen(["python3", "builder_form_map_generator.py"])
+        subprocess.Popen(["python3", "form_diff_viewer.py"])
 
 def trigger_phase_actions():
     triggers = load_triggers()

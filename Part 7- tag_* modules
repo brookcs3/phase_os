@@ -1,0 +1,71 @@
+📘 Phase OS Manual Part 7: tag_* Modules
+
+🏷️ Purpose
+
+The tag_* modules power Phase OS’s semantic reflection and annotation layer. They allow you to:
+	•	Track emotional or conceptual labels across sessions
+	•	Navigate your system by idea instead of date
+	•	Loop meaning back into structure
+
+In short: this is how the system remembers what it all meant.
+
+⸻
+
+🧭 Core Components
+
+tag_dashboard.py
+	•	Role: Web dashboard
+	•	Function:
+	•	Displays all tags extracted from:
+	•	voice_log.md
+	•	fragment_index.md
+	•	form constraints / session notes
+	•	Allows filtering by tag (e.g., see all sessions tagged “melancholy”)
+	•	Links to voice recordings, sample slices, form maps
+	•	Served at: http://localhost:7870
+
+⸻
+
+tag_reflector_link.py
+	•	Role: Semantic index builder
+	•	Function:
+	•	Reads voice_context_stream, fragment logs, moodboards
+	•	Builds a linked tag index → tag_index.md
+	•	Includes links to:
+	•	sessions
+	•	samples
+	•	visuals
+	•	Run Automatically: During Generator and Builder phases
+
+⸻
+
+📁 Output Example
+
+# Tag Index
+
+## anxiety
+- [2025-06-01 Generator] → moodboard
+- [session_2025-0601_1042] → hiss_loop.wav
+
+## longing
+- [session_2025-0601_1112] → voice memo log: “I miss the noise of machines.”
+
+
+⸻
+
+🧠 Why It’s Powerful
+	•	Mirrors your themes across time
+	•	Lets you recall creative fragments by emotion
+	•	Surfaces aesthetic patterns you didn’t consciously track
+	•	Enables query-based memory navigation (“What else did I say about memory loops?”)
+
+⸻
+
+💡 Tips
+	•	Use this as a tag-based playlist tool (“Play all samples tagged winter”)
+	•	Merge tags from different modalities (voice, form, texture)
+	•	Let this index inform next phase choice (“Return to Builder when ‘resolve’ tag is present”)
+
+⸻
+
+Next: archive_* module family — time-layered snapshots, exports, and recovery tools.

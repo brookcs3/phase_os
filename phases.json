@@ -1,11 +1,8 @@
 {
-  "Generator": [
-    "ollama run dolphin-mixtral",
-    "afplay ./sounds/low_gamma.wav",
-    "open ./phase_artifacts/Generator/"
-  ],
-  "Executor": [
-    "osascript -e 'display notification \"Close one loop.\"'",
-    "open -a iTerm"
-  ]
+  "phases": {
+    "1": {"name": "Generator", "intent": "Divergence and idea capture"},
+    "2": {"name": "Builder", "intent": "Pattern formation and system design"},
+    "3": {"name": "Executor", "intent": "Polish and delivery"},
+    "4": {"name": "Recovery", "intent": "Rest and reflection"}
+  }
 }

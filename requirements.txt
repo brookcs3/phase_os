@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+keyboard
+numpy
+pillow
+soundfile
+openl3
+tqdm

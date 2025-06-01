@@ -57,6 +57,12 @@ def execute_commands(commands):
         subprocess.Popen(["python3", "oracle_moodboard_generator.py"])
         subprocess.Popen(["python3", "session_overlay.py"])
         subprocess.Popen(["python3", "phase_os_dashboard.py"])
+    elif current == "Recovery":
+        print("🪞 Opening fragment review dashboard...")
+        subprocess.Popen(["uvicorn", "oracle_fragment_browser:app", "--host", "127.0.0.1", "--port", "7891", "--reload"])
+    elif current == "Builder":
+        print("🧩 Generating remix session...")
+        subprocess.Popen(["python3", "oracle_remix_session.py"])
 
 def trigger_phase_actions():
     triggers = load_triggers()

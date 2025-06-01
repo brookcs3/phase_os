@@ -26,9 +26,7 @@
       responsive: true
     });
 
-    let start = 0;
-    let end = 0;
-
+    let region;
     document.getElementById('audioFile').addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (file) {
@@ -37,13 +35,8 @@
       }
     });
 
-    wavesurfer.on('region-updated', function (region) {
-      start = region.start;
-      end = region.end;
-    });
-
     wavesurfer.on('ready', function () {
-      wavesurfer.addRegion({
+      region = wavesurfer.addRegion({
         start: 0,
         end: wavesurfer.getDuration(),
         drag: true,
@@ -52,38 +45,37 @@
       });
     });
 
-    function trimAudio() {
-      const region = wavesurfer.regions.list[Object.keys(wavesurfer.regions.list)[0]];
+    async function trimAudio() {
       const audio = wavesurfer.backend.media;
-
       const context = new AudioContext();
       const reader = new FileReader();
-      reader.onload = function () {
-        context.decodeAudioData(reader.result, function (buffer) {
-          const rate = buffer.sampleRate;
-          const startSample = Math.floor(region.start * rate);
-          const endSample = Math.floor(region.end * rate);
-          const length = endSample - startSample;
+      reader.onload = async function () {
+        const buffer = await context.decodeAudioData(reader.result);
+        const rate = buffer.sampleRate;
+        const startSample = Math.floor(region.start * rate);
+        const endSample = Math.floor(region.end * rate);
+        const length = endSample - startSample;
 
-          const trimmed = context.createBuffer(1, length, rate);
-          trimmed.copyToChannel(buffer.getChannelData(0).slice(startSample, endSample), 0);
+        const trimmed = context.createBuffer(1, length, rate);
+        trimmed.copyToChannel(buffer.getChannelData(0).slice(startSample, endSample), 0);
 
-          const exportBuffer = context.createBufferSource();
-          const offlineCtx = new OfflineAudioContext(1, length, rate);
-          const source = offlineCtx.createBufferSource();
-          source.buffer = trimmed;
-          source.connect(offlineCtx.destination);
-          source.start();
-          offlineCtx.startRendering().then(function (rendered) {
-            const blob = bufferToWave(rendered, length);
-            const url = URL.createObjectURL(blob);
-            const link = document.getElementById('download');
-            link.href = url;
-            link.style.display = 'inline-block';
-          });
-        });
+        const offlineCtx = new OfflineAudioContext(1, length, rate);
+        const source = offlineCtx.createBufferSource();
+        source.buffer = trimmed;
+        source.connect(offlineCtx.destination);
+        source.start();
+        const rendered = await offlineCtx.startRendering();
+
+        const blob = bufferToWave(rendered, length);
+        const url = URL.createObjectURL(blob);
+        const a = document.getElementById('download');
+        a.href = url;
+        a.style.display = 'inline-block';
+        a.click();
+
+        fetch('/log_slice', { method: 'POST' });
       };
-      reader.readAsArrayBuffer(wavesurfer.backend.media.src);
+      reader.readAsArrayBuffer(audio.src);
     }
 
     function bufferToWave(abuffer, len) {
@@ -97,31 +89,13 @@
       let offset = 0;
       let pos = 0;
 
-      function setUint16(data) {
-        view.setUint16(pos, data, true);
-        pos += 2;
-      }
+      function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+      function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
 
-      function setUint32(data) {
-        view.setUint32(pos, data, true);
-        pos += 4;
-      }
-
-      setUint32(0x46464952); // "RIFF"
-      setUint32(length - 8); // file length - 8
-      setUint32(0x45564157); // "WAVE"
-
-      setUint32(0x20746d66); // "fmt " chunk
-      setUint32(16); // length = 16
-      setUint16(1); // PCM (uncompressed)
-      setUint16(numOfChan);
-      setUint32(sampleRate);
-      setUint32(sampleRate * 2);
-      setUint16(numOfChan * 2);
-      setUint16(16);
-
-      setUint32(0x61746164); // "data" - chunk
-      setUint32(length - pos - 4);
+      setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157);
+      setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan);
+      setUint32(sampleRate); setUint32(sampleRate * 2); setUint16(numOfChan * 2); setUint16(16);
+      setUint32(0x61746164); setUint32(length - pos - 4);
 
       for (let i = 0; i < abuffer.numberOfChannels; i++)
         channels.push(abuffer.getChannelData(i));
@@ -135,8 +109,112 @@
         offset++;
       }
 
-      return new Blob([buffer], { type: "audio/wav" });
+      return new Blob([buffer], { type: 'audio/wav' });
     }
   </script>
 </body>
 </html>
+
+<script>
+  // Log slice to server
+  async function logSlice() {
+    try {
+      const response = await fetch('/log_slice', { method: 'POST' });
+      if (!response.ok) throw new Error('Network response was not ok');
+      console.log('Slice logged successfully');
+    } catch (error) {
+      console.error('Error logging slice:', error);
+    }
+  }
+
+  // Call logSlice when the script loads
+  logSlice();
+</script>
+</script>
+<script>
+  // Ensure the wavesurfer instance is created before using it
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!wavesurfer) {
+      console.error('Wavesurfer instance not initialized');
+    }
+  });
+  // Add event listener for audio file input
+  document.getElementById('audioFile').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      wavesurfer.load(url);
+    }
+  });
+  // Add event listener for wavesurfer ready event
+  wavesurfer.on('ready', function () {
+    region = wavesurfer.addRegion({
+      start: 0,
+      end: wavesurfer.getDuration(),
+      drag: true,
+      resize: true,
+      color: 'rgba(0,123,255,0.1)'
+    });
+  });
+  // Add event listener for trim button
+  document.querySelector('button').addEventListener('click', function () {
+    if (wavesurfer.isPlaying()) {
+      wavesurfer.playPause();
+    } else {
+      trimAudio();
+    }
+  });
+  // Add event listener for download link
+  document.getElementById('download').addEventListener('click', function () {
+    if (wavesurfer.isPlaying()) {
+      wavesurfer.playPause();
+    }
+  });
+  // Add event listener for wavesurfer error event
+  wavesurfer.on('error', function (error) {
+    console.error('Wavesurfer error:', error);
+  });
+  // Add event listener for wavesurfer region update
+  wavesurfer.on('region-updated', function (region) {
+    console.log('Region updated:', region);
+  });
+  // Add event listener for wavesurfer region removed
+  wavesurfer.on('region-removed', function (region) {
+    console.log('Region removed:', region);
+  });
+  // Add event listener for wavesurfer region click
+  wavesurfer.on('region-click', function (region) {
+    console.log('Region clicked:', region);
+  });
+  // Add event listener for wavesurfer region drag
+  wavesurfer.on('region-drag', function (region) {
+    console.log('Region dragged:', region);
+  });
+  // Add event listener for wavesurfer region resize
+  wavesurfer.on('region-resize', function (region) {
+    console.log('Region resized:', region);
+  });
+  // Add event listener for wavesurfer region play
+  wavesurfer.on('region-play', function (region) {
+    console.log('Region play:', region);
+  });
+  // Add event listener for wavesurfer region pause
+  wavesurfer.on('region-pause', function (region) {
+    console.log('Region pause:', region);
+  });
+  // Add event listener for wavesurfer region end
+  wavesurfer.on('region-end', function (region) {
+    console.log('Region end:', region);
+  });
+  // Add event listener for wavesurfer region enter
+  wavesurfer.on('region-enter', function (region) {
+    console.log('Region enter:', region);
+  });
+  // Add event listener for wavesurfer region leave
+  wavesurfer.on('region-leave', function (region) {
+    console.log('Region leave:', region);
+  });
+  // Add event listener for wavesurfer region select
+  wavesurfer.on('region-select', function (region) {
+    console.log('Region select:', region);
+  });

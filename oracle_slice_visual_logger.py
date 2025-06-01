@@ -1,28 +1,27 @@
-# Oracle Slice Logger (Hotkey Auto-Trigger)
-# Monitors export folder and logs final slices with timestamp and session tag
+# Oracle Slice Visual Logger
+# Captures screenshot on slice export and logs next to audio fragment
 
 import os
-from datetime import datetime
 import shutil
-import keyboard
-import time
+from datetime import datetime
+from PIL import ImageGrab
 
 EXPORT_DIR = "./oracle_slices"
+VISUAL_DIR = "./oracle_slices_visual"
 SESSIONS_DIR = "./unnamed_record/sessions"
 SLICE_LOG = "./fragment_index.md"
-HOTKEY = "ctrl+alt+s"
 
-os.makedirs(EXPORT_DIR, exist_ok=True)
+os.makedirs(VISUAL_DIR, exist_ok=True)
 
 
 def find_latest_session():
     sessions = sorted([d for d in os.listdir(SESSIONS_DIR) if d.startswith("session_")], reverse=True)
     return sessions[0] if sessions else "session_unknown"
 
-def monitor_and_log():
+def log_with_visual():
     files = [f for f in os.listdir(EXPORT_DIR) if f.endswith(".wav") or f.endswith(".mp3")]
     if not files:
-        print("📭 No new slices found.")
+        print("📭 No slices found.")
         return
 
     latest = max(files, key=lambda x: os.path.getmtime(os.path.join(EXPORT_DIR, x)))
@@ -30,11 +29,15 @@ def monitor_and_log():
     session = find_latest_session()
     path = os.path.join(EXPORT_DIR, latest)
 
+    shot_name = latest.replace(".wav", ".png").replace(".mp3", ".png")
+    shot_path = os.path.join(VISUAL_DIR, shot_name)
+    ImageGrab.grab().save(shot_path)
+
     with open(SLICE_LOG, 'a') as log:
-        log.write(f"[{timestamp}] SLICE: {latest} (session: {session})\n{path}\n\n")
+        log.write(f"[{timestamp}] SLICE: {latest} (session: {session})\n")
+        log.write(f"Audio: {path}\nVisual: {shot_path}\n\n")
 
-    print(f"✅ Logged slice: {latest} under session {session}")
+    print(f"🖼️ Logged with screenshot: {shot_name}")
 
-print(f"🎚️ Slice logger active — press {HOTKEY} to log latest export")
-keyboard.add_hotkey(HOTKEY, monitor_and_log)
-keyboard.wait()
+if __name__ == "__main__":
+    log_with_visual()

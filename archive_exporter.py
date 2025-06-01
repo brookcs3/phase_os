@@ -3,6 +3,7 @@
 
 import os
 import shutil
+from zipfile import ZipFile
 from datetime import datetime
 
 EXPORT_ROOT = "./archives"
@@ -17,11 +18,15 @@ def archive():
     output_path = os.path.join(EXPORT_ROOT, output_name)
     print(f"📦 Creating archive: {output_path}")
 
-    shutil.make_archive(
-        base_name=output_path.replace(".zip", ""),
-        format='zip',
-        root_dir=EXPORT_DIR
-    )
+    with ZipFile(output_path, 'w') as zipf:
+        for root, dirs, files in os.walk(EXPORT_DIR):
+            dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+            for file in files:
+                if any(ignored in root for ignored in IGNORE_DIRS):
+                    continue
+                abs_path = os.path.join(root, file)
+                rel_path = os.path.relpath(abs_path, EXPORT_DIR)
+                zipf.write(abs_path, rel_path)
 
     print("✅ Backup complete.")
 

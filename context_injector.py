@@ -1,62 +1,77 @@
-# Phase Trigger Engine
-# Executes pre-defined actions upon phase entry
-
-import json
 import os
-import subprocess
-import time
+from datetime import datetime
 
-TRIGGERS_FILE = "./phase_triggers.json"
 CURRENT_PHASE_FILE = "./current_phase.txt"
-TRIGGER_STATE_FILE = "./.last_triggered_phase"
+SESSIONS_DIR = "./unnamed_record/sessions"
+TAG_INDEX = "./fragment_index.md"
+AI_CONTEXT_FILE = "./ai_content.txt"
 
-if not os.path.exists(TRIGGERS_FILE):
-    with open(TRIGGERS_FILE, 'w') as f:
-        json.dump({}, f)
-
-def load_triggers():
-    with open(TRIGGERS_FILE, 'r') as f:
-        return json.load(f)
 
 def read_current_phase():
-    if not os.path.exists(CURRENT_PHASE_FILE):
+    if os.path.exists(CURRENT_PHASE_FILE):
+        with open(CURRENT_PHASE_FILE, "r") as f:
+            return f.read().strip()
+    return None
+
+
+def find_latest_session():
+    if not os.path.exists(SESSIONS_DIR):
         return None
-    with open(CURRENT_PHASE_FILE, 'r') as f:
-        return f.read().strip()
-
-def read_last_triggered():
-    if not os.path.exists(TRIGGER_STATE_FILE):
+    sessions = [d for d in os.listdir(SESSIONS_DIR) if d.startswith("session_")]
+    if not sessions:
         return None
-    with open(TRIGGER_STATE_FILE, 'r') as f:
-        return f.read().strip()
+    latest = sorted(sessions, reverse=True)[0]
+    return os.path.join(SESSIONS_DIR, latest)
 
-def write_last_triggered(phase):
-    with open(TRIGGER_STATE_FILE, 'w') as f:
-        f.write(phase)
 
-def execute_commands(commands):
-    for cmd in commands:
-        print(f"⚡ Triggering: {cmd}")
-        subprocess.Popen(cmd, shell=True)
-    print("🔁 Injecting updated cognitive context to AI...")
-    subprocess.Popen(["python3", "context_injector.py"])
+def get_recent_tags(count=3):
+    if not os.path.exists(TAG_INDEX):
+        return []
+    with open(TAG_INDEX, "r") as f:
+        lines = [line.strip() for line in f if "Tags:" in line]
+    tags = [line.split("Tags:", 1)[-1].strip() for line in lines[-count:]]
+    return tags
 
-def trigger_phase_actions():
-    triggers = load_triggers()
-    current = read_current_phase()
-    last = read_last_triggered()
-    if current and current != last:
-        if current in triggers:
-            execute_commands(triggers[current])
-        else:
-            execute_commands([])
-        write_last_triggered(current)
 
-def run_loop():
-    print("⏳ Trigger engine active...")
-    while True:
-        trigger_phase_actions()
-        time.sleep(5)
+def get_latest_voice(session_path):
+    txts = [f for f in os.listdir(session_path) if f.startswith("voice_") and f.endswith(".txt")]
+    if not txts:
+        return None
+    latest = sorted(txts, reverse=True)[0]
+    with open(os.path.join(session_path, latest), "r") as f:
+        return f.readline().strip()
+
+
+def build_context():
+    context_lines = []
+
+    phase = read_current_phase()
+    if phase:
+        context_lines.append(f"Current phase: {phase}")
+
+    session_path = find_latest_session()
+    if session_path:
+        notes = os.path.join(session_path, "notes.md")
+        if os.path.exists(notes):
+            with open(notes, "r") as f:
+                first = f.readline().strip()
+            context_lines.append(f"Session: {first or os.path.basename(session_path)}")
+        voice = get_latest_voice(session_path)
+        if voice:
+            context_lines.append(f"Latest voice snippet: {voice}")
+
+    tags = get_recent_tags()
+    if tags:
+        context_lines.append("Recent tags: " + ", ".join(tags))
+
+    timestamp = datetime.now().isoformat()
+    with open(AI_CONTEXT_FILE, "w") as f:
+        f.write(f"# AI Context [{timestamp}]\n")
+        for line in context_lines:
+            f.write(line + "\n")
+
+    print(f"✅ AI context written to {AI_CONTEXT_FILE}")
+
 
 if __name__ == "__main__":
-    run_loop()
+    build_context()

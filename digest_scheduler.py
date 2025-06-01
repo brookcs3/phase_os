@@ -1,9 +1,10 @@
 # Digest Scheduler
-# Runs weekly digest generator, mailer, and backup every Sunday at 10am
+# Runs digest, mailer, archive, and Oracle playlist refresh on schedule
 
 import schedule
 import time
 import subprocess
+
 
 def run_weekly_digest():
     print("🗂️ Running weekly digest generation...")
@@ -12,6 +13,9 @@ def run_weekly_digest():
     subprocess.run(["python3", "digest_mailer.py"])
     print("📦 Archiving Phase OS snapshot...")
     subprocess.run(["python3", "archive_exporter.py"])
+    print("📡 Refreshing Oracle playlist source...")
+    subprocess.run(["python3", "oracle_playlist_miner.py"])
+    subprocess.run(["python3", "oracle_seed_engine.py"])
 
 schedule.every().sunday.at("10:00").do(run_weekly_digest)
 

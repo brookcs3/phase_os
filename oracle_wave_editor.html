@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Oracle Sample Editor</title>
+  <script src="https://unpkg.com/wavesurfer.js"></script>
+  <style>
+    body { background: #111; color: #eee; font-family: sans-serif; padding: 2em; }
+    #waveform { margin: 2em 0; }
+    button { margin-right: 1em; padding: 0.5em 1em; }
+  </style>
+</head>
+<body>
+  <h1>🔊 Oracle Sample Editor</h1>
+  <input type="file" id="audioFile" accept="audio/*">
+  <div id="waveform"></div>
+  <button onclick="wavesurfer.playPause()">▶️ Play/Pause</button>
+  <button onclick="trimAudio()">✂️ Trim</button>
+  <a id="download" style="display:none" download="slice.wav">💾 Download Trim</a>
+
+  <script>
+    let wavesurfer = WaveSurfer.create({
+      container: '#waveform',
+      waveColor: '#666',
+      progressColor: '#33f',
+      backend: 'MediaElement',
+      responsive: true
+    });
+
+    let start = 0;
+    let end = 0;
+
+    document.getElementById('audioFile').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        wavesurfer.load(url);
+      }
+    });
+
+    wavesurfer.on('region-updated', function (region) {
+      start = region.start;
+      end = region.end;
+    });
+
+    wavesurfer.on('ready', function () {
+      wavesurfer.addRegion({
+        start: 0,
+        end: wavesurfer.getDuration(),
+        drag: true,
+        resize: true,
+        color: 'rgba(0,123,255,0.1)'
+      });
+    });
+
+    function trimAudio() {
+      const region = wavesurfer.regions.list[Object.keys(wavesurfer.regions.list)[0]];
+      const audio = wavesurfer.backend.media;
+
+      const context = new AudioContext();
+      const reader = new FileReader();
+      reader.onload = function () {
+        context.decodeAudioData(reader.result, function (buffer) {
+          const rate = buffer.sampleRate;
+          const startSample = Math.floor(region.start * rate);
+          const endSample = Math.floor(region.end * rate);
+          const length = endSample - startSample;
+
+          const trimmed = context.createBuffer(1, length, rate);
+          trimmed.copyToChannel(buffer.getChannelData(0).slice(startSample, endSample), 0);
+
+          const exportBuffer = context.createBufferSource();
+          const offlineCtx = new OfflineAudioContext(1, length, rate);
+          const source = offlineCtx.createBufferSource();
+          source.buffer = trimmed;
+          source.connect(offlineCtx.destination);
+          source.start();
+          offlineCtx.startRendering().then(function (rendered) {
+            const blob = bufferToWave(rendered, length);
+            const url = URL.createObjectURL(blob);
+            const link = document.getElementById('download');
+            link.href = url;
+            link.style.display = 'inline-block';
+          });
+        });
+      };
+      reader.readAsArrayBuffer(wavesurfer.backend.media.src);
+    }
+
+    function bufferToWave(abuffer, len) {
+      const numOfChan = abuffer.numberOfChannels,
+            length = len * numOfChan * 2 + 44,
+            buffer = new ArrayBuffer(length),
+            view = new DataView(buffer),
+            channels = [],
+            sampleRate = abuffer.sampleRate;
+
+      let offset = 0;
+      let pos = 0;
+
+      function setUint16(data) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+      }
+
+      function setUint32(data) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+      }
+
+      setUint32(0x46464952); // "RIFF"
+      setUint32(length - 8); // file length - 8
+      setUint32(0x45564157); // "WAVE"
+
+      setUint32(0x20746d66); // "fmt " chunk
+      setUint32(16); // length = 16
+      setUint16(1); // PCM (uncompressed)
+      setUint16(numOfChan);
+      setUint32(sampleRate);
+      setUint32(sampleRate * 2);
+      setUint16(numOfChan * 2);
+      setUint16(16);
+
+      setUint32(0x61746164); // "data" - chunk
+      setUint32(length - pos - 4);
+
+      for (let i = 0; i < abuffer.numberOfChannels; i++)
+        channels.push(abuffer.getChannelData(i));
+
+      while (pos < length) {
+        for (let i = 0; i < numOfChan; i++) {
+          const sample = Math.max(-1, Math.min(1, channels[i][offset]));
+          view.setInt16(pos, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+          pos += 2;
+        }
+        offset++;
+      }
+
+      return new Blob([buffer], { type: "audio/wav" });
+    }
+  </script>
+</body>
+</html>

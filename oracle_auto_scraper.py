@@ -23,12 +23,12 @@ def scrape_random_search():
     search_term = f"ytsearch{MAX_DOWNLOADS}:{query}"
     print(f"🎧 Searching: {search_term}")
     cmd = [
-        "yt-dlp",
-        "--extract-audio",
-        "--audio-format", "mp3",
-        "--output", f"{CLIP_DIR}/%(title).80s.%(ext)s",
-        search_term
-    ]
+    "yt-dlp",
+    "--extract-audio",
+    "--audio-format", "mp3",
+    "--output", f"{CLIP_DIR}/%(title).80s.%(ext)s",
+    f"ytsearch5:{query}"
+]
     subprocess.run(cmd)
 
 def scan_downloads():

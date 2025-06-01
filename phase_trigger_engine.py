@@ -55,6 +55,8 @@ def execute_commands(commands):
         subprocess.Popen(["uvicorn", "tag_dashboard:app", "--host", "127.0.0.1", "--port", "7870", "--reload"])
         subprocess.Popen(["python3", "tag_reflector_link.py"])
         subprocess.Popen(["python3", "oracle_moodboard_generator.py"])
+        subprocess.Popen(["python3", "session_overlay.py"])
+        subprocess.Popen(["python3", "phase_os_dashboard.py"])
 
 def trigger_phase_actions():
     triggers = load_triggers()

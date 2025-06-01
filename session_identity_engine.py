@@ -8,7 +8,13 @@ SESSIONS_DIR = "./unnamed_record/sessions"
 FRAGMENT_TAGS = "./fragment_index.md"
 
 def find_latest_session():
-    sessions = sorted([d for d in os.listdir(SESSIONS_DIR) if d.startswith("session_")], reverse=True)
+    """Return the latest session identifier and path if available."""
+    if not os.path.exists(SESSIONS_DIR):
+        return None, None
+    sessions = sorted(
+        [d for d in os.listdir(SESSIONS_DIR) if d.startswith("session_")],
+        reverse=True,
+    )
     if not sessions:
         return None, None
     session_id = sessions[0]
@@ -23,10 +29,16 @@ def extract_tags():
     return [line.split("Tags:", 1)[-1].strip() for line in lines[-5:]]
 
 def extract_voice(session_path):
-    txts = sorted([f for f in os.listdir(session_path) if f.startswith("voice_") and f.endswith(".txt")], reverse=True)
+    """Return the latest voice transcription snippet if available."""
+    if not os.path.exists(session_path):
+        return ""
+    txts = sorted(
+        [f for f in os.listdir(session_path) if f.startswith("voice_") and f.endswith(".txt")],
+        reverse=True,
+    )
     if not txts:
         return ""
-    with open(os.path.join(session_path, txts[0]), 'r') as f:
+    with open(os.path.join(session_path, txts[0]), "r") as f:
         return f.read().strip()
 
 def synthesize_identity(voice_snippet, tags):

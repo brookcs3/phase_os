@@ -48,7 +48,13 @@ def get_latest_tags():
         return [line.split("Tags:", 1)[-1].strip() for line in f if "Tags:" in line][-3:]
 
 def find_latest_session():
-    sessions = sorted([d for d in os.listdir(SESSIONS_DIR) if d.startswith("session_")], reverse=True)
+    """Return the most recent session name if available."""
+    if not os.path.exists(SESSIONS_DIR):
+        return "session_unknown"
+    sessions = sorted(
+        [d for d in os.listdir(SESSIONS_DIR) if d.startswith("session_")],
+        reverse=True,
+    )
     return sessions[0] if sessions else "session_unknown"
 
 def suggest_samples():

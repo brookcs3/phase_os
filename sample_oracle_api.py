@@ -2,7 +2,7 @@
 # Serves curated vinyl-era clips and suggests matches based on OpenL3 vectors
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 import random
 import os
 import json
@@ -14,10 +14,20 @@ ORACLE_DB = "./oracle_dynamic.json"
 EMBED_FILE = "./oracle_embeddings.json"
 app.state.current_clip = None
 
+
+def load_records():
+    """Load oracle entries from disk."""
+    if not os.path.exists(ORACLE_DB):
+        return []
+    with open(ORACLE_DB, 'r') as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError:
+            return []
+
 @app.get("/", response_class=HTMLResponse)
 async def oracle_ui():
-    with open(ORACLE_DB, 'r') as f:
-        records = json.load(f)
+    records = load_records()
 
     record = random.choice(records)
     clip_path = record['clip']
@@ -63,6 +73,34 @@ async def oracle_ui():
     """
     app.state.current_clip = clip_path
     return HTMLResponse(html)
+
+
+@app.get("/samples")
+async def list_samples():
+    """Return all oracle records."""
+    records = load_records()
+    records = [r for r in records if os.path.exists(r.get("clip", ""))]
+    return JSONResponse(records)
+
+
+@app.get("/samples/random")
+async def random_sample():
+    """Return a random oracle entry."""
+    records = [r for r in load_records() if os.path.exists(r.get("clip", ""))]
+    if not records:
+        return JSONResponse({}, status_code=404)
+    return JSONResponse(random.choice(records))
+
+
+@app.get("/samples/tags/{tag}")
+async def samples_by_tag(tag: str):
+    """Return samples containing the given tag."""
+    records = [
+        r
+        for r in load_records()
+        if os.path.exists(r.get("clip", "")) and tag in r.get("tags", [])
+    ]
+    return JSONResponse(records)
 
 @app.get("/clip")
 async def serve_clip():

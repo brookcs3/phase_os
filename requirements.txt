@@ -6,3 +6,4 @@ pillow
 soundfile
 openl3
 tqdm
+schedule

@@ -4,8 +4,10 @@
     "afplay ./sounds/low_gamma.wav",
     "open ./phase_artifacts/Generator/"
   ],
+  "Builder": [],
   "Executor": [
     "osascript -e 'display notification \"Close one loop.\"'",
     "open -a iTerm"
-  ]
+  ],
+  "Recovery": []
 }

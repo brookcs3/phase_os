@@ -61,8 +61,10 @@ def execute_commands(commands):
         print("🪞 Opening fragment review dashboard...")
         subprocess.Popen(["uvicorn", "oracle_fragment_browser:app", "--host", "127.0.0.1", "--port", "7891", "--reload"])
     elif current == "Builder":
-        print("🧩 Generating remix session...")
+        print("🧩 Generating remix session and builder form map...")
         subprocess.Popen(["python3", "oracle_remix_session.py"])
+        subprocess.Popen(["uvicorn", "remix_browser:app", "--host", "127.0.0.1", "--port", "7892", "--reload"])
+        subprocess.Popen(["python3", "builder_form_map_generator.py"])
 
 def trigger_phase_actions():
     triggers = load_triggers()

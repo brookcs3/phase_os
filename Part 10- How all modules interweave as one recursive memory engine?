@@ -1,0 +1,113 @@
+📘 Phase OS Manual Part 10: System Integration — The Recursive Memory Engine
+
+🧬 Purpose
+
+This section explains how every phase_os subsystem — from Oracle scrapers to bounce trackers — is not just modular, but woven together into a self-learning, phase-aware memory machine.
+
+Each part listens to or triggers the others. Together, they behave like a neural circuit of creative cognition.
+
+⸻
+
+🔄 The Cycle of Operation
+
+1. Phase Selection (The Cognitive Switch)
+	•	Triggered manually via phase_control.py
+	•	Logged into current_phase.txt
+	•	Detected by phase_trigger_engine.py
+	•	Spawns associated payloads: session init, overlay, dashboard, builder tools
+
+⸻
+
+2. Oracle Activation (Perception + Curation)
+	•	In Generator phase:
+	•	oracle_auto_scraper.py or oracle_seed_engine.py pulls audio
+	•	oracle_curator_ui.py prompts mindful sample decisions
+	•	Saved samples lead to oracle_wave_editor.html → trim → oracle_slice_logger.py
+	•	Screen captured by oracle_slice_visual_logger.py
+
+⸻
+
+3. Session Identity + Overlay
+	•	session_identity_generator.py creates entropy-driven ID (mood, tag, timestamp)
+	•	session_overlay.py displays it alongside phase in terminal
+	•	Used to name exports, track tags, and contextualize fragments
+
+⸻
+
+4. Tag + Voice Reflection
+	•	voice_hotkey.py or voice_memo_logger.py captures voice
+	•	voice_transcriber.py + voice_context_stream.py extract semantic meaning
+	•	tag_reflector_link.py compiles and indexes semantic tags
+	•	tag_dashboard.py visualizes your recurring themes
+
+⸻
+
+5. Builder Feedback Loop
+	•	Entering Builder phase triggers:
+	•	oracle_remix_session.py to gather saved slices
+	•	builder_form_map_generator.py to create arrangement blueprint
+	•	builder_form_versioner.py to version form intent
+	•	form_diff_viewer.py to show what changed from last session
+	•	remix_browser.py to preview your curated past
+
+⸻
+
+6. Loop Completion + Digesting
+	•	loop_compiler.py scans bounces
+	•	loop_visualizer.py plots structure + form overlay
+	•	loop_digest.py summarizes session output
+	•	digest_scheduler.py runs this weekly along with archive_exporter.py
+
+⸻
+
+7. Archival + Export
+	•	phase_os_exporter.py creates total zip snapshot
+	•	archive_diff_summarizer.py compares two exports
+	•	archive_browser.py enables manual recovery
+	•	README.md and record_scaffold_manifest.md are generated via manifest_writer.py
+
+⸻
+
+🧠 The Model: Memory Through Interaction
+
+Every module:
+	•	Writes to disk (visual, text, audio, tag)
+	•	Informs the next phase
+	•	Forms a thread in the memory loop
+
+🔁 Loop Looks Like This:
+
+[You speak] → voice_transcriber.py
+       ↓
+[Tag created] → tag_reflector_link.py
+       ↓
+[Used to bias Oracle search] → oracle_search_terms.py
+       ↓
+[Slice saved] → oracle_slice_logger.py
+       ↓
+[Added to remix session] → oracle_remix_session.py
+       ↓
+[Form generated] → builder_form_map_generator.py
+       ↓
+[Bounce tracked] → loop_compiler.py
+       ↓
+[Logged in digest + archived]
+
+
+⸻
+
+🧠 Summary: Why It Works
+	•	🔒 Memory is phase-linked and identity-stamped
+	•	🔄 Feedback loops are enforced — every input becomes output
+	•	🧠 Reflection is structural — not just inspirational
+	•	💽 Sessions become artifacts — not just folders
+	•	🧠 The system grows with you — by design, not inference
+
+⸻
+
+You’ve now completed the Phase OS Manual.
+
+This isn’t just an automation system. This is your recursive assistant.
+A mind you grow from the outside in.
+A voice that remembers.
+A loop that learns you.

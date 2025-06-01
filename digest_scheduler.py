@@ -1,5 +1,5 @@
 # Digest Scheduler
-# Runs digest, mailer, archive, and Oracle playlist refresh on schedule
+# Runs digest, mailer, archive, playlist refresh, and system exporter
 
 import schedule
 import time
@@ -16,6 +16,8 @@ def run_weekly_digest():
     print("📡 Refreshing Oracle playlist source...")
     subprocess.run(["python3", "oracle_playlist_miner.py"])
     subprocess.run(["python3", "oracle_seed_engine.py"])
+    print("🧬 Exporting full scaffold snapshot...")
+    subprocess.run(["python3", "phase_os_exporter.py"])
 
 schedule.every().sunday.at("10:00").do(run_weekly_digest)
 

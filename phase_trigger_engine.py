@@ -49,6 +49,7 @@ def execute_commands(commands):
         print("🎛️ Launching DAW for Generator phase...")
         subprocess.Popen(["python3", "session_identity_generator.py"])
         subprocess.Popen(["python3", "session_identity_logger.py"])
+        subprocess.Popen(["python3", "session_identity_engine.py"])
         subprocess.Popen(["python3", "daw_launcher.py"])
         subprocess.Popen(["python3", "session_linker.py"])
         subprocess.Popen(["python3", "fragment_tagger.py"])

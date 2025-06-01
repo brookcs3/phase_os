@@ -4,6 +4,8 @@
 import os
 from datetime import datetime
 
+IDENTITY_FILE = "./current_session_identity.txt"
+
 SESSIONS_DIR = "./unnamed_record/sessions"
 FRAGMENT_TAGS = "./fragment_index.md"
 
@@ -63,6 +65,11 @@ def tag_session_identity():
     identity = synthesize_identity(voice, tags)
     with open(os.path.join(path, "notes.md"), 'a') as f:
         f.write(f"\n## Session Identity\n{identity}\n")
+
+    # Store identity for consumption by other modules
+    with open(IDENTITY_FILE, "w") as f:
+        f.write(identity)
+
     print(f"🧬 Session identity tagged: {identity}")
 
 if __name__ == "__main__":

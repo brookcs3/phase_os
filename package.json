@@ -1,0 +1,14 @@
+{
+  "name": "chatgpt-remote-workspace-app",
+  "version": "0.1.0",
+  "description": "Prompt-first ChatGPT app scaffold for running remote terminal workflows and downloading repos.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "lint": "echo 'Add your preferred linter (eslint, biome, etc.)'"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.1.2"
+  }
+}

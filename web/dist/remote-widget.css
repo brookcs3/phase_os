@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light dark;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.widget {
+  padding: 16px;
+  border-radius: 12px;
+  background: color-mix(in srgb, Canvas 80%, Highlight 5%);
+  border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+  box-shadow: 0 4px 24px color-mix(in srgb, CanvasText 5%, transparent);
+}
+
+header h1 {
+  margin: 4px 0 8px;
+  font-size: 20px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  margin: 0;
+}
+
+.lede {
+  margin: 0;
+  color: color-mix(in srgb, CanvasText 70%, transparent);
+}
+
+.panel {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, Canvas 95%, Highlight 3%);
+  border: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+}
+
+.panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, CanvasText 60%, transparent);
+  margin: 0;
+}
+
+.value {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
+.prompt {
+  white-space: pre-wrap;
+  background: color-mix(in srgb, CanvasText 5%, Canvas 100%);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px dashed color-mix(in srgb, CanvasText 25%, transparent);
+  margin: 6px 0 0;
+}
+
+button.ghost {
+  border: 1px solid color-mix(in srgb, CanvasText 30%, transparent);
+  background: transparent;
+  color: inherit;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button.ghost:hover {
+  background: color-mix(in srgb, CanvasText 10%, transparent);
+}
